@@ -1,41 +1,41 @@
-"""Student Grade Management System"""
+"""Student Grade Management System with validation and reporting."""
 
 from typing import List
 
 
 class Student:
-    """A class representing a student with grades."""
+    """Class representing a student and their academic records."""
 
     def __init__(self, student_id: str, name: str):
         """
         Initialize a student with ID and name.
 
         Args:
-            student_id (str): Unique identifier for the student.
-            name (str): Name of the student.
+            student_id (str): The unique identifier for the student.
+            name (str): The student's full name.
 
         Raises:
             ValueError: If ID or name is empty.
         """
         if not student_id.strip() or not name.strip():
             raise ValueError("Student ID and name must not be empty.")
-
         self.student_id = student_id.strip()
         self.name = name.strip()
         self.grades: List[float] = []
-        self.average = 0.0
-        self.letter_grade = "N/A"
-        self.passed = False
+        self.average: float = 0.0
+        self.letter_grade: str = "N/A"
+        self.passed: bool = False
+        self.honor_roll: bool = False
 
     def add_grade(self, grade: float):
         """
-        Add a numeric grade to the student's record.
+        Add a grade to the student's grade list.
 
         Args:
-            grade (float): Grade to add (0–100).
+            grade (float): A number between 0 and 100.
 
         Raises:
-            ValueError: If grade is invalid.
+            ValueError: If the grade is invalid.
         """
         if not isinstance(grade, (int, float)):
             raise ValueError("Grade must be a number.")
@@ -44,63 +44,111 @@ class Student:
         self.grades.append(float(grade))
 
     def calculate_average(self):
-        """Calculate the average of all grades."""
+        """Calculate average grade and update letter grade, pass/fail, and honor roll."""
         if not self.grades:
             self.average = 0.0
         else:
             self.average = sum(self.grades) / len(self.grades)
-        self._assign_letter_grade()
-        self._determine_pass_status()
 
-    def _assign_letter_grade(self):
-        """Assign a letter grade based on the average."""
-        avg = self.average
-        if avg >= 90:
+        # Assign letter grade
+        if self.average >= 90:
             self.letter_grade = "A"
-        elif avg >= 80:
+        elif self.average >= 80:
             self.letter_grade = "B"
-        elif avg >= 70:
+        elif self.average >= 70:
             self.letter_grade = "C"
-        elif avg >= 60:
+        elif self.average >= 60:
             self.letter_grade = "D"
         else:
             self.letter_grade = "F"
 
-    def _determine_pass_status(self):
-        """Determine if the student has passed based on average."""
+        # Determine pass/fail
         self.passed = self.average >= 60
 
-    def report(self):
-        """Print a detailed report of the student's performance."""
-        print(f"Student ID   : {self.student_id}")
-        print(f"Name         : {self.name}")
-        print(f"Grades       : {self.grades}")
-        print(f"Average      : {self.average:.2f}")
-        print(f"Letter Grade : {self.letter_grade}")
-        print(f"Passed       : {'YES' if self.passed else 'NO'}")
+        # Determine honor roll status
+        self.honor_roll = self.average >= 90
+
+    def remove_grade_by_index(self, index: int):
+        """
+        Remove a grade by its index.
+
+        Args:
+            index (int): Position in the grade list.
+
+        Raises:
+            IndexError: If index is invalid.
+        """
+        if 0 <= index < len(self.grades):
+            del self.grades[index]
+        else:
+            raise IndexError("Index out of bounds. Cannot remove grade.")
+
+    def remove_grade_by_value(self, value: float):
+        """
+        Remove the first occurrence of a grade value.
+
+        Args:
+            value (float): Grade value to remove.
+
+        Raises:
+            ValueError: If the value does not exist in the list.
+        """
+        if value in self.grades:
+            self.grades.remove(value)
+        else:
+            raise ValueError(f"Grade {value} not found in the list.")
+
+    def generate_report(self) -> str:
+        """Generate and return a formatted summary report for the student."""
+        return (
+            f"📋 Student Report\n"
+            f"---------------------\n"
+            f"ID            : {self.student_id}\n"
+            f"Name          : {self.name}\n"
+            f"Grades        : {self.grades}\n"
+            f"Total Grades  : {len(self.grades)}\n"
+            f"Average       : {self.average:.2f}\n"
+            f"Letter Grade  : {self.letter_grade}\n"
+            f"Passed        : {'Yes' if self.passed else 'No'}\n"
+            f"Honor Roll    : {'Yes' if self.honor_roll else 'No'}\n"
+        )
 
 
 def demo_run():
-    """Demonstrate system functionality with sample inputs."""
+    """Demonstration of system functionality with example student."""
     try:
-        student_a = Student("001", "Alice")
-        student_a.add_grade(95.0)
-        student_a.add_grade(88.5)
-        student_a.add_grade(73)
-        # Invalid entries (handled gracefully)
-        try:
-            student_a.add_grade("A+")
-        except ValueError as err:
-            print("Error adding grade:", err)
-        try:
-            student_a.add_grade(-10)
-        except ValueError as err:
-            print("Error adding grade:", err)
+        student = Student("S001", "Giancarlo Ortiz")
+        student.add_grade(95.0)
+        student.add_grade(87.5)
+        student.add_grade(91.0)
 
-        student_a.calculate_average()
-        student_a.report()
-    except ValueError as err:
-        print("Error creating student:", err)
+        # Invalid grades
+        try:
+            student.add_grade("A+")
+        except ValueError as e:
+            print("Invalid grade input:", e)
+
+        try:
+            student.add_grade(120)
+        except ValueError as e:
+            print("Out of range grade:", e)
+
+        student.calculate_average()
+
+        try:
+            student.remove_grade_by_index(10)
+        except IndexError as e:
+            print("Index error:", e)
+
+        try:
+            student.remove_grade_by_value(72.0)
+        except ValueError as e:
+            print("Value error:", e)
+
+        print(student.generate_report())
+
+    except ValueError as e:
+        print("Student creation failed:", e)
 
 
 if __name__ == "__main__":
