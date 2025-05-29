@@ -36,5 +36,5 @@ Este proyecto es una implementación en Python de un sistema básico para la ges
 1. Clona este repositorio:
 
 ```bash
-git clone https://github.com/tu-usuario/student-grade-manager.git
+git clone [https://github.com/tu-usuario/student-grade-manager.git](https://github.com/GiancarloAyrton/tallercodingstandards.git)
 cd student-grade-manager
